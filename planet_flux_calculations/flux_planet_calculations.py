@@ -5,7 +5,6 @@ from scipy.optimize import minimize
 from scipy.integrate import trapezoid
 import math
 import sys
-
 from astropy.modeling.models import BlackBody
 from astropy import units as u
 

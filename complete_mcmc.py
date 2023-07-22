@@ -6,7 +6,7 @@ run_mcmc_1 = True
 #run_mcmc_2 = False
 
 nburn = 500 # put back run burnin in mcmc function
-nprod = 3000
+nprod = 1000
 
 pars = pars_lastrun
 priors = combo_priors
@@ -110,7 +110,7 @@ plt.title("kepler post-mcmc lc")
 plt.scatter(kepler["time"], kepler["flux"], s=1)
 plt.plot(kepler["time"], kepler["final_mcmc_lc"], color="red")
 
-plt.show()
+plt.savefig("final_mcmc_plots.pdf", dpi=300, bbox_inches="tight")
 
 # prints transit depths + errors
 labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",

@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,venv,pycharm,macos,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,venv,pycharm,macos,visualstudiocode
 
+# does not save PDFs - star considers before as nothing <3
+*.pdf
+
 ### macOS ###
 # General
 .DS_Store
