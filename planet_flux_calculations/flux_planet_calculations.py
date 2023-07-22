@@ -19,7 +19,7 @@ kep_transmission_raw = np.loadtxt("Kepler_Kepler.K.dat")
 spitz_ch1_raw = np.loadtxt("Spitzer_IRAC.I1.dat")
 spitz_ch2_raw = np.loadtxt("Spitzer_IRAC.I2.dat")
 
-mcmc_output = np.load("final_params_working.npz")
+mcmc_output = np.load("../final_params_working.npz")
 pars = mcmc_output["pars"]
 errs = mcmc_output["errors"]
 RpRs_kepler = [pars[4], errs[4]]
