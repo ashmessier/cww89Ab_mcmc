@@ -1,4 +1,4 @@
-from fixing_fitfunctions import *
+from complete_fitfunctions import *
 from astropy.stats import sigma_clip
 import numpy as np
 
@@ -13,7 +13,7 @@ combo = True
 #pars_lastrun = lastrun["pars"][:-3]
 pars_lastrun = [ 2.45734633e+06,  7.23671448e-01 , 8.96680539e-02 , 9.08712237e-02,
   9.32840342e-02 , 1.10105843e+00 , 3.01517908e-02 ,-4.69965731e-02,
-  1.87089610e-01 ,-3.25863522e-03  ,2.23321109e-03]
+  1.87089610e-01 ,-3.25863522e-03  ,2.23321109e-03] # best pars from that one run
 
 print(pars_lastrun)
 

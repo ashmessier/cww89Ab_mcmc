@@ -119,7 +119,7 @@ labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",
 for i, label in enumerate(labels):
     print(label, ":", mcmc_pars1[i], "+/-", mcmc_errs1[i])
 
-np.savez("final_params_working", pars = mcmc_pars1, errors = mcmc_errs1)
+np.savez("final_params", pars = mcmc_pars1, errors = mcmc_errs1)
 
 np.savez("ch1_data", time=ch1["time"], flux=ch1["mcmc_detrended_flux"], err=ch1["error"], mcmc_lc=ch1["final_mcmc_lc"],
          residuals=ch1["mcmc_detrended_flux"] - ch1["final_mcmc_lc"], x=ch1["xpos"], y=ch1["ypos"], blissflux=ch1_blissflux)
