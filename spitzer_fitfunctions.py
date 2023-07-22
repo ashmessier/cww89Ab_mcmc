@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata, RectBivariateSpline
 from scipy.stats import binned_statistic
 import scipy.stats as stats
-from fixing_dictionaries import *
+from dictionaries import *
 import sys
 from multiprocessing import Pool, cpu_count
 import emcee, corner
@@ -37,9 +37,7 @@ def lc(pars, data, ch=""):
         params.u = [0.09, 0.098]
         params.rp = pars[3]
 
-    t = np.linspace(np.min(time), np.max(time),
-                    len(time))  # times at which to calculate light curve - array size of initial time array
-    m = batman.TransitModel(params, t)  # initializes model
+    m = batman.TransitModel(params, time)  # initializes model
     model = m.light_curve(params)
 
     if 0 in model:

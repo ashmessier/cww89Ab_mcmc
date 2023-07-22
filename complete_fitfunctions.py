@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata, RectBivariateSpline
 from scipy.stats import binned_statistic
 import scipy.stats as stats
-from fixing_dictionaries import *
+from dictionaries import *
 import sys
 from multiprocessing import Pool, cpu_count
 import emcee, corner

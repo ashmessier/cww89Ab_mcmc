@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from fixing_dictionaries import *
-from fixing_keplerfuncs import *
+from dictionaries import *
+from kepler_fitfunctions import *
 
 # options to run code
 mcmc_run = True

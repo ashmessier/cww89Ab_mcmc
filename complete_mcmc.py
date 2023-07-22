@@ -1,5 +1,5 @@
-from fixing_dictionaries import *
-from fixing_fitfunctions import *
+from dictionaries import *
+from complete_fitfunctions import *
 
 # options to run code
 run_mcmc_1 = True

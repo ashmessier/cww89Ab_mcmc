@@ -1,5 +1,5 @@
-from fixing_dictionaries import *
-from fixing_spitzercomb_functions import *
+from dictionaries import *
+from spitzer_fitfunctions import *
 
 # options to run code
 run_mcmc_1 = False

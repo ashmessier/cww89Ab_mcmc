@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from fixing_fitfunctions import *
+from complete_fitfunctions import *
 import numpy as np
 import corner
 from scipy.stats import binned_statistic
