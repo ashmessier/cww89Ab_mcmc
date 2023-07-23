@@ -266,8 +266,8 @@ def run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler, plot_corner = False, 
                   "esinw", "ecosw", "slope1", "slope2"]
         fig = corner.corner(flat_sample, labels=labels, show_titles=True)
         plt.tight_layout()
-        plt.show()
-        #plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
+        #plt.show()
+        plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
 
     return flat_sample
 
