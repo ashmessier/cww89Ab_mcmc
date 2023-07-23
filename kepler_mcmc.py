@@ -6,50 +6,29 @@ from kepler_fitfunctions import *
 # options to run code
 mcmc_run = True
 
-nburn = 1500 # put back run burnin in mcmc function
-nprod = 2000
+nburn = 500 # put back run burnin in mcmc function
+nprod = 500
 
 pars = kd_combo_priors[:, 0]
 priors = kd_combo_priors
 
+ss=True
+
+# kepler_lc = lc(pars, kepler, SuperSample=True)
+
 # kepler_ss = PhaseFold(kepler, pars, new_dict=True, SuperSample = True)
 # kepler_no_ss = PhaseFold(kepler, pars, new_dict=True, SuperSample = False)
-#
 #
 # plt.plot(kepler_ss["phase_time"], kepler_ss["lc_php"], color="red", linestyle=":")
 # plt.plot(kepler_no_ss["phase_time"], kepler_no_ss["lc_php"], color="green", linestyle=":")
 #
 # plt.xlim(-0.03, 0.03)
 # plt.scatter(kepler_ss["phasefold_results"], kepler["flux"], s=1, alpha=0.5)
+# plt.plot(kepler_ss["phasefold_results"], kepler_ss["lc_php"])
+# plt.plot(kepler_no_ss["phase_time"], kepler_no_ss["lc_php"])
 #
 # plt.show()
-# sys.exit()
-
-# changing RpRs to figure out where code fails
-
-# looks like period is not accurate ..? or consistant across transits
-# my understanding is that the transit center time or period is not perfectly consistant across all of the observaitons
-# See plot below -> Period starts off accurate, gets worse, then gets better
-# So the bestfit solution decides its better to not try to hit the points in the middle
-# so I get a fit where the RpRs is better when smaller ??
-# each transit has about 7 points to it
-# ~90 total points vs like 3000?
-
-# did not work with only fitting like 5 aligned transits at once - so this ^^ is probably not the case
-
-# if the LNP function is flat in the log likelihood plots for RpRs when RpRs prior is checked off -> only sway
-# for RpRs is coming from data influence
-# Since lnp function is flat when prior is off, data displays no preference for any RpRs value (same for t0)
-
-# when I turn off priors for other parameters, only non-flat ones are cosi, esinw, ecosw -> implies no signal from
-# the data for those too?? - meaning Period, a/Rs, RpRs, T0 are not dependent on the data?? or have no sway for the data??
-
-# but then with t0, is there no signal from the data or the prior somehow???
-
-# when run the same lnp vs parameter code for the phasefold data , get same flat lines for RpRs and T0 .. yikes
-# Could it have to do with these being the only linear parameters?
-# Makes me think this is an issue with lnp function bc lightcurves visually plot fine
-
+#sys.exit()
 
 # can I try fitting the first 5 transits
 # pars[0] = 2457346.32942 - 0.01
@@ -125,7 +104,7 @@ priors = kd_combo_priors
 # runs mcmc using MCMC function if run_mcmc1
 if mcmc_run:
     kepler["error"] = kepler["error"] * 2.6 # scales error by TB value?
-    flat_sample = run_mcmc(pars, priors, nburn, nprod, kepler, run="K1", plot_corner=True, SuperSample=True)
+    flat_sample = run_mcmc(pars, priors, nburn, nprod, kepler, run="K1", plot_corner=True, SuperSample=ss)
 
     # extract median values, standard deviation from flat sample using flatsample_pars funciton
 if mcmc_run == False:
@@ -133,8 +112,8 @@ if mcmc_run == False:
 
 mcmc_pars, mcmc_err = flatsample_pars(flat_sample)
 
-kepler_lc = lc(mcmc_pars, kepler, SuperSample=True)
-kepler_ph_mcmc = PhaseFold(kepler, mcmc_pars, new_dict=True, SuperSample=True)
+kepler_lc = lc(mcmc_pars, kepler, SuperSample=ss)
+kepler_ph_mcmc = PhaseFold(kepler, mcmc_pars, new_dict=True, SuperSample=ss)
 
 plt.plot(kepler_ph_mcmc["phase_time"], kepler_ph_mcmc["lc_php"], color="red")
 plt.scatter(kepler_ph_mcmc["phasefold_results"], kepler["flux"], s=1)

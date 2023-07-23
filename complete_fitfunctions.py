@@ -63,6 +63,9 @@ def lc(pars, data, ch="", SuperSample = False):
         m = batman.TransitModel(params, time)  # initializes model
         model = m.light_curve(params)
 
+    if np.nan in model:
+        print("model = nan in lc function - why is that")
+
     return model
 
 # BLISS function for pixel mapping reasons

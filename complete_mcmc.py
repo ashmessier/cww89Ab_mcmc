@@ -3,17 +3,16 @@ from complete_fitfunctions import *
 
 # options to run code
 run_mcmc_1 = True
-#run_mcmc_2 = False
 
 nburn = 500 # put back run burnin in mcmc function
-nprod = 1000
+nprod = 2000
 
 pars = pars_lastrun
 priors = combo_priors
 
-ss=True # SuperSample
+ss=True # SuperSample for Kepler data - deals with strange ingress/egress effects
 
-# make complete model (LC, ramp, BLISS) + add to data dictionary
+# make complete model (LC, ramp, BLISS) + add to data dictionary for Spitzer channels
 ch1_bliss_lc = lc(pars, ch1, ch=1)
 ch1_ramp = ramp(pars[9], ch1)
 ch1_bliss_model = ch1_bliss_lc * ch1_ramp
@@ -28,19 +27,13 @@ ch2_blissfunc = BLISSmodel(ch2, ch2_bliss_model, plotgrid=False, returnfunc=True
 ch2_blissflux = ch2_blissfunc.ev(ch2["xpos"], ch2["ypos"])
 ch2["pre_mcmc_lc"] = ch2_bliss_model * ch2_blissflux
 
+# makes kepler lc model
 kepler["pre_mcmc_lc"] = lc(pars, kepler, ch="kepler", SuperSample = ss)
 
 # calculating residuals of detrended data + add to data dictionary
 ch1["pre_mcmc_residuals"] = ch1["flux"] / ch1["pre_mcmc_lc"]
 ch2["pre_mcmc_residuals"] = ch2["flux"] / ch2["pre_mcmc_lc"]
 kepler["pre_mcmc_residuals"] = kepler["flux"] / kepler["pre_mcmc_lc"]
-
-# plt.scatter(ch1["time"], ch1["flux"]/ch1_blissflux/ch1_ramp)
-# plt.plot(ch1["time"], ch1_bliss_lc, color="red")
-# plt.show()
-# plt.scatter(ch2["time"], ch2["flux"]/ch2_blissflux/ch2_ramp)
-# plt.plot(ch2["time"], ch2_bliss_lc, color="red")
-# plt.show()
 
 # Scale errors on Spitzer data
     # Calculate standard deviation of residuals
@@ -59,18 +52,16 @@ ch2["error"] = ch2["error_raw"] * ch2_scale
 
 # runs mcmc using MCMC function if run_mcmc1
 if run_mcmc_1:
-    kepler["error"] = kepler["error"] * 2.6
-    # print("lnp errscale_mcmc1:", lnp(pars, priors, ch1, ch2, kepler))
-    flat_sample1 = run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler ,plot_corner=True, SuperSample = ss, run=1)
+    kepler["error"] = kepler["error"] * 2.6 # scales error on kepler function by value allowed by calculations
+    flat_sample1 = run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler ,plot_corner=True, SuperSample = ss, run=1) # runs MCMC
 
 if run_mcmc_1 == False:
-    flat_sample1 = np.load("flat_sample_1.npy")
+    flat_sample1 = np.load("flat_sample_1.npy") # uploads previous MCMC run flatsample for analysis
 
 # extract median values, standard deviation from flat sample using flatsample_pars funciton
 mcmc_pars1, mcmc_errs1 = flatsample_pars(flat_sample1)
 
-print("lnp pos mcmc1:", lnp(mcmc_pars1, priors, ch1, ch2, kepler, SuperSample = ss))
-
+# creates final, detrended lcs from MCMC pars
 ch1["final_mcmc_lc"] = lc(mcmc_pars1, ch1, ch=1)
 ch1_ramp = ramp(mcmc_pars1[9], ch1)
 ch1_bliss_model = ch1_bliss_lc * ch1_ramp
@@ -110,6 +101,7 @@ plt.title("kepler post-mcmc lc")
 plt.scatter(kepler["time"], kepler["flux"], s=1)
 plt.plot(kepler["time"], kepler["final_mcmc_lc"], color="red")
 
+#plt.show()
 plt.savefig("final_mcmc_plots.pdf", dpi=300, bbox_inches="tight")
 
 # prints transit depths + errors

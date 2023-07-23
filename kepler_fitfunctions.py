@@ -23,7 +23,7 @@ def BintoSpec(wave1, wave2, model):
     return binnedmodel
 
 # LC function that takes data dictionaries
-def lc(pars_values, data, ch="", SuperSample=False):
+def lc(pars_values, data, SuperSample=False):
     if not isinstance(data, dict): # checks to see if the data imput is a dictionary
         time = data # if not, uses the array assigned to time instead of dictionary
     else:
@@ -34,21 +34,19 @@ def lc(pars_values, data, ch="", SuperSample=False):
     params.per = 10 ** pars_values[1]  # orbital period
     params.rp = pars_values[2]  # planet radius (in units of stellar radii)
     params.a = 10 ** pars_values[3]  # semi-major axis (in units of stellar radii)
-   # params.inc = 88.5
     params.inc = np.arccos(np.fabs(pars_values[4])) * (180 / np.pi)  # orbital inclination (in degrees)
     params.ecc = np.sqrt(pars_values[6] ** 2 + pars_values[5] ** 2)  # eccentricity
     params.w = np.arctan2(pars_values[5], pars_values[6]) * (180 / np.pi)  # longitude of periastron (in degrees)
     params.limb_dark = "quadratic"  # limb darkening model
-   # params.u=[pars_values[7], pars_values[8]]
     params.u = [0.39456, 0.26712]
 
     if SuperSample:
-        SuperSampleTime = np.arange(time[0], time[-1], 0.004)
+        SuperSampleTime = np.arange(time[0], time[-1], 0.004) # 0.004 = 6 minute candence (opposed to the 30 expected)
         m = batman.TransitModel(params, SuperSampleTime)
         SuperSampleFlux = m.light_curve(params)
         model = BintoSpec(time, SuperSampleTime, SuperSampleFlux)
     else:
-        m = batman.TransitModel(params, time)  # initializes model
+        m = batman.TransitModel(params, time)
         model = m.light_curve(params)
 
     if 0 in model:
@@ -77,7 +75,7 @@ def PhaseFold(data, pars, residuals=False, binned=False, new_dict = False, Super
     phasefold_pars = PhaseTimes(time, t0, period)
     time_pars = np.linspace(-0.5, 0.5, len(flux))
     php_times_pars = time_pars * period + t0
-    lc_php_pars = lc(pars, php_times_pars, ch=ch, SuperSample=SuperSample)
+    lc_php_pars = lc(pars, php_times_pars, SuperSample=SuperSample)
 
     if residuals:
         residual_flux = flux - lc_php_pars
@@ -102,7 +100,7 @@ def lnp(pars, priors, kepler, SuperSample=False):
     scale = 1
 
     models = {}
-    models["kepler"] = lc(pars, kepler, ch="kepler", SuperSample=SuperSample)
+    models["kepler"] = lc(pars, kepler, SuperSample=SuperSample)
 
     # Calculate the log-likelihood
     log_prob_data = 0.0
