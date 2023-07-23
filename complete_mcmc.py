@@ -101,8 +101,8 @@ plt.title("kepler post-mcmc lc")
 plt.scatter(kepler["time"], kepler["flux"], s=1)
 plt.plot(kepler["time"], kepler["final_mcmc_lc"], color="red")
 
-#plt.show()
-plt.savefig("final_mcmc_plots.pdf", dpi=300, bbox_inches="tight")
+plt.show()
+#plt.savefig("final_mcmc_plots.pdf", dpi=300, bbox_inches="tight")
 
 # prints transit depths + errors
 labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",

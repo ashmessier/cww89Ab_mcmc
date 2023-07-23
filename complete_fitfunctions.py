@@ -55,10 +55,12 @@ def lc(pars, data, ch="", SuperSample = False):
         params.rp = pars[4]
 
     if SuperSample:
-        SuperSampleTime = np.arange(time[0], time[-1], 0.004)
-        m = batman.TransitModel(params, SuperSampleTime)
-        SuperSampleFlux = m.light_curve(params)
-        model = BintoSpec(time, SuperSampleTime, SuperSampleFlux)
+        # SuperSampleTime = np.arange(time[0], time[-1], 0.004)
+        # m = batman.TransitModel(params, SuperSampleTime)
+        # SuperSampleFlux = m.light_curve(params)
+        # model = BintoSpec(time, SuperSampleTime, SuperSampleFlux)
+        m = batman.TransitModel(params, time, supersample_factor=5, exp_time = 0.02)
+        model = m.light_curve(params)
     else:
         m = batman.TransitModel(params, time)  # initializes model
         model = m.light_curve(params)
@@ -184,6 +186,8 @@ def make_model(pars, data, ch=""):
 
     lightcurve = lc(pars, data, ch)
     modelforBLISS = lightcurve * ramp  # accounts for non-system related linear trends
+    if np.nan in modelforBLISS:
+        print("nan in model for BLISS, help")
     blissfunc = BLISSmodel(data, modelforBLISS, plotgrid=False, returnfunc=True)
     blissflux = blissfunc.ev(data["xpos"], data["ypos"])
     model = lightcurve * ramp * blissflux
@@ -262,7 +266,8 @@ def run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler, plot_corner = False, 
                   "esinw", "ecosw", "slope1", "slope2"]
         fig = corner.corner(flat_sample, labels=labels, show_titles=True)
         plt.tight_layout()
-        plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
+        plt.show()
+        #plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
 
     return flat_sample
 

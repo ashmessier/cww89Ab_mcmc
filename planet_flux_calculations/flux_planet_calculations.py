@@ -18,6 +18,7 @@ kep_transmission_raw = np.loadtxt("Kepler_Kepler.K.dat")
 spitz_ch1_raw = np.loadtxt("Spitzer_IRAC.I1.dat")
 spitz_ch2_raw = np.loadtxt("Spitzer_IRAC.I2.dat")
 
+# loads in MCMC results
 mcmc_output = np.load("../final_params.npz")
 pars = mcmc_output["pars"]
 errs = mcmc_output["errors"]
@@ -25,6 +26,15 @@ RpRs_kepler = [pars[4], errs[4]]
 depth_ch1 = [pars[11], errs[11]]
 depth_ch2 = [pars[12], errs[12]]
 depth_kepler = [pars[13], errs[13]]
+
+# loads in star radii values from Thomas , converts to correct units
+to_cm = 6.95700e10 # radius of the sun in cm
+R_A = 1.01 * to_cm * u.cm # radius of A
+sig_R_A = 0.04 *to_cm * u.cm # uncertainty on radius
+R_B = 0.52 * to_cm * u.cm # raidus of B
+sig_R_B = 0.06 * to_cm * u.cm # uncertainty of radius of B
+
+Rp = (RpRs_kepler[0]) * R_A  # Assume Kepler radius is the true radius of brown dwarf, convert from RpRs -> Rp using R_A # Rp in cm
 
 # FUNCTION FOR CALCULATING FLUX OVER A WAVELENGTH
 def trapz(lam, flux):
@@ -65,10 +75,6 @@ def find_lum_per_filter(filter, spectrum):
     flux = spec[:, 1] * (u.erg / u.cm**2 / u.s / u.AA) # grabs flux from array, adds correct units
     transmission = interp_func(wavelength) # calculates new kepler transmission array values of same length of transmission x values
     scaled_flux = transmission * flux
-    # plt.plot(spec[:, 0], spec[:, 1])
-    # plt.plot(spec[:, 0],scaled_flux)
-    #
-    # plt.show()
 
     Sp = trapz(wavelength, scaled_flux) # surface brightness of object
     print("Surface brightness:", Sp)
