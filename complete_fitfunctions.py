@@ -217,8 +217,8 @@ def lnp(pars, priors, ch1, ch2, kepler, SuperSample = False):
     #log_prob_prior += stats.norm.logpdf(pars[4], loc=priors[4][0], scale=priors[4][1]/scale) # RpRsk
     #log_prob_prior += stats.norm.logpdf(pars[5], loc=priors[5][0], scale=priors[5][1]/scale) # log_ars
    # log_prob_prior += stats.norm.logpdf(pars[6], loc=priors[6][0], scale=priors[6][1]/scale) # Cosi
-  #  log_prob_prior += stats.norm.logpdf(pars[7], loc=priors[7][0], scale=priors[7][1]/scale) # esinw
-   # log_prob_prior += stats.norm.logpdf(pars[8], loc=priors[8][0], scale=priors[8][1]/scale) # ecosw
+    log_prob_prior += stats.norm.logpdf(pars[7], loc=priors[7][0], scale=priors[7][1]/scale) # esinw
+    log_prob_prior += stats.norm.logpdf(pars[8], loc=priors[8][0], scale=priors[8][1]/scale) # ecosw
     #log_prob_prior += stats.norm.logpdf(pars[9], loc=priors[9][0], scale=priors[9][1]/scale) # slope1
     #log_prob_prior += stats.norm.logpdf(pars[10], loc=priors[10][0], scale=priors[10][1]/scale) # slope2
     # Combine log-likelihoods
@@ -230,7 +230,7 @@ def lnp(pars, priors, ch1, ch2, kepler, SuperSample = False):
 # Makes walker array, runs mcmc
 def run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler, plot_corner = False, SuperSample=False, run=1):
     ndim = len(pars)
-    nwalkers = 2*ndim*2
+    nwalkers = 2*ndim * 2
 
     pos = np.empty((nwalkers, ndim))
     for i, par in enumerate(pars):
@@ -239,35 +239,35 @@ def run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler, plot_corner = False, 
     with Pool() as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnp,
                                         args=(priors, ch1, ch2, kepler, SuperSample), pool=pool)
-        pos, _, _ = sampler.run_mcmc(pos, nburn, progress=True)  # runs mcmc on burnin values
-        #
-        # fig, axes = plt.subplots(len(pos), figsize=(5, 20))
-        # plt.suptitle("Post burnin walker positions")
-        # for i, par in enumerate(pos):
-        #     kepler_ph = PhaseFold(kepler, par, new_dict=True, ch="kepler")
-        #     # curve = lc(par, kepler, ch="kepler")
-        #     axes[i].plot(kepler_ph["phase_time"], kepler_ph["lc_php"], color="red")
-        #     axes[i].scatter(kepler_ph["phasefold_results"], kepler["flux"], s=1)
-        #     axes[i].set_title("walker array:" + str(i))
-        #     axes[i].set_xlim(-0.025, 0.025)
-        # plt.tight_layout()
-        # plt.show()
-
+        pos, _, _ = sampler.run_mcmc(pos, nburn, progress=True)  # runs mcmc once
         sampler.reset()
         pos, _, _ = sampler.run_mcmc(pos, nprod, progress=True)  # runs from positions of burnin values
+        flat_sample = sampler.get_chain(discard=0, thin=1, flat=True)  # flattens list of samples
+        np.savez(f"flat_sample_{run}", flat_sample = flat_sample, sample=sampler)  # saves flatsamples array
+        # for i in range(nburn):
+        #     print("step:", i)
+        #     pos, _, _ = sampler.run_mcmc(pos, 1, progress=False)  # runs mcmc once
+        #     flat_sample = sampler.get_chain(discard=0, thin=1, flat=True)  # flattens list of samples
+        #     sample = sampler.get_chain()
+        #     log_probs = sampler.get_log_prob(flat=True)
+        #     np.savez("mcmc_progress", flat_sample=flat_sample, sample=sample, log_probs=log_probs, priors=priors,
+        #              ch1=ch1, ch2=ch2, kepler=kepler)  # saves flatsamples array
+
+        # sampler.reset()
+    # pos, _, _ = sampler.run_mcmc(pos, nprod, progress=True)  # runs from positions of burnin values
 
     # creates flat_sample array for corner plot generation
-    flat_sample = sampler.get_chain(discard=0, thin=1, flat=True)  # flattens list of samples
-
-    np.save(f"flat_sample_{run}", flat_sample)  # saves flatsamples array
-
-    if plot_corner:
-        labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",
-                  "esinw", "ecosw", "slope1", "slope2"]
-        fig = corner.corner(flat_sample, labels=labels, show_titles=True)
-        plt.tight_layout()
-        plt.show()
-        plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
+    # flat_sample = sampler.get_chain(discard=0, thin=1, flat=True)  # flattens list of samples
+    # products = np.load("mcmc_progress.npz")
+    # flat_sample = products["flat_sample"]
+    #
+    # if plot_corner:
+    #     labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",
+    #               "esinw", "ecosw", "slope1", "slope2"]
+    #     fig = corner.corner(flat_sample, labels=labels, show_titles=True)
+    #     plt.tight_layout()
+    #     plt.show()
+    #     plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
 
     return flat_sample
 

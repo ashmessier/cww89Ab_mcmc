@@ -127,6 +127,7 @@ if combo:# MCMC WORKS WITH COMBO PRIORS as PARS AND USING PRIORS_SPITZ AS T0 AND
     combo_pars[9] = priors_spitz[9][0]  # m1
     combo_pars[10] = priors_spitz[10][0]  # m2
 
+
 # These are the values that wokr individually
 sd_combo_priors = np.zeros((10, 2))
 sd_combo_priors[0] = Tc_RV # t0

@@ -4,7 +4,7 @@ from complete_fitfunctions import *
 # options to run code
 run_mcmc_1 = True
 
-nburn = 500 # put back run burnin in mcmc function
+nburn = 1000 # put back run burnin in mcmc function
 nprod = 2000
 
 pars = pars_lastrun
@@ -56,7 +56,45 @@ if run_mcmc_1:
     flat_sample1 = run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler ,plot_corner=True, SuperSample = ss, run=1) # runs MCMC
 
 if run_mcmc_1 == False:
-    flat_sample1 = np.load("flat_sample_1.npy") # uploads previous MCMC run flatsample for analysis
+    mcmc_products = np.load("flat_sample_1.npz") # uploads previous MCMC run flatsample for analysis
+    flat_sample1 = mcmc_products["flat_sample"]
+   # sample = mcmc_products["sample"]
+    # products_1 = np.load("mcmc_progress.npz")
+    # flat_sample1 = products_1["flat_sample"]
+    # sample = products_1["sample"]
+
+labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",
+          "esinw", "ecosw", "slope1", "slope2"]
+fig = corner.corner(flat_sample1, labels=labels, show_titles=True)
+plt.tight_layout()
+plt.show()
+plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
+
+# fig, axes = plt.subplots(len(pars), figsize=(10, 17), sharex=True)
+# labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",
+#           "esinw", "ecosw", "slope1", "slope2"]
+#
+# for i, n in enumerate(np.arange(0,  len(pars))):
+#     ax = axes[i]
+#     for j in range(len(pars * 2)):
+#         ax.plot(sample[:, j, n], alpha=0.3)
+#     # ax.plot(sample[:, 1, n], alpha=0.3, color="red")
+#     # ax.plot(sample[:, 2, n], alpha=0.3, color="orange")
+#     # ax.plot(sample[:, 3, n], alpha=0.3, color="blue")
+#     # ax.plot(sample[:, 4, n], alpha=0.3, color="purple")
+#     ax.set_xlim(0, len(sample))
+#     ax.set_ylabel(labels[i])
+#     ax.yaxis.set_label_coords(-0.1, 0.5)
+#
+# axes[-1].set_xlabel("step number")
+# plt.savefig("walker_position_plots.pdf", dpi=300, bbox_inches="tight")
+# plt.show()
+#
+# likelihoods = sample.get_log_prob()
+# plt.title("Log likelihoods")
+# plt.plot(likelihoods)
+# plt.savefig("log_likelihood_plots.pdf", dpi=300, bbox_inches="tight")
+# plt.show()
 
 # extract median values, standard deviation from flat sample using flatsample_pars funciton
 mcmc_pars1, mcmc_errs1 = flatsample_pars(flat_sample1)
