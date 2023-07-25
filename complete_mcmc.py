@@ -77,6 +77,7 @@ ch2_blissflux = ch2_blissfunc.ev(ch2["xpos"], ch2["ypos"])
 mcmc2_lc_all2 = ch2_bliss_model * ch2_blissflux
 
 kepler["final_mcmc_lc"] = lc(mcmc_pars1, kepler, ch="kepler", SuperSample = ss)
+kepler_ph = PhaseFold(kepler, mcmc_pars1, new_dict=True, SuperSample=ss, ch="kepler")
 
 # for SPITZER data:
     # Divide out BLISSflux and ramp from raw flux
@@ -98,10 +99,12 @@ plt.plot(ch2["time"], ch2["final_mcmc_lc"], color="red")
 
 plt.subplot(133)
 plt.title("kepler post-mcmc lc")
-plt.scatter(kepler["time"], kepler["flux"], s=1)
-plt.plot(kepler["time"], kepler["final_mcmc_lc"], color="red")
+plt.scatter(kepler_ph["phasefold_results"], kepler["flux"], s=1)
+plt.xlim(-0.02, 0.02)
+#plt.ylim(0.998, 1.001)
+plt.plot(kepler_ph["phase_time"], kepler_ph["lc_php"], color="red")
 
-#plt.show()
+plt.show()
 plt.savefig("final_mcmc_plots.pdf", dpi=300, bbox_inches="tight")
 
 # prints transit depths + errors

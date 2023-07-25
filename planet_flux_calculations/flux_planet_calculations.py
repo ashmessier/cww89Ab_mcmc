@@ -29,12 +29,14 @@ depth_kepler = [pars[13], errs[13]]
 
 # loads in star radii values from Thomas , converts to correct units
 to_cm = 6.95700e10 # radius of the sun in cm
-R_A = 1.01 * to_cm * u.cm # radius of A
-sig_R_A = 0.04 *to_cm * u.cm # uncertainty on radius
-R_B = 0.52 * to_cm * u.cm # raidus of B
-sig_R_B = 0.06 * to_cm * u.cm # uncertainty of radius of B
+RA = 1.01 * to_cm * u.cm # radius of A
+sig_RA = 0.04 *to_cm * u.cm # uncertainty on radius
+RB = 0.52 * to_cm * u.cm # raidus of B
+sig_RB = 0.06 * to_cm * u.cm # uncertainty of radius of B
 
-Rp = (RpRs_kepler[0]) * R_A  # Assume Kepler radius is the true radius of brown dwarf, convert from RpRs -> Rp using R_A # Rp in cm
+# calculates Kepler radius in cm
+Rp = (RpRs_kepler[0]) * RA # Assume Kepler radius is the true radius of brown dwarf, convert from RpRs -> Rp using R_A # Rp in cm
+sig_Rp =(RA.value**2 * RpRs_kepler[1]** 2 + RpRs_kepler[0]**2 * sig_RA.value ** 2) ** 0.5
 
 # FUNCTION FOR CALCULATING FLUX OVER A WAVELENGTH
 def trapz(lam, flux):
@@ -47,10 +49,15 @@ def trapz(lam, flux):
     lam = lam.to(u.cm)
     flux = flux.to(u.erg / u.cm**3 /u.s)
 
-    n = len(lam)
-    for i in range(1, n):
-        h = lam[i] - lam[i-1]
-        integral += (flux[i] + flux[i-1]) * h / 2
+    # n = len(lam)
+    # for i in range(1, n):
+    #     h = lam[i] - lam[i-1]
+    #     integral += (flux[i] + flux[i-1]) * h / 2
+
+    integral = sum(
+        (flux[i] + flux[i-1]) * (lam[i] - lam[i-1]) / 2
+        for i in range(1, len(lam))
+    )
 
     return integral
 
@@ -77,10 +84,22 @@ def find_lum_per_filter(filter, spectrum):
     scaled_flux = transmission * flux
 
     Sp = trapz(wavelength, scaled_flux) # surface brightness of object
-    print("Surface brightness:", Sp)
     return Sp
 
-Sp_ch2_starA = find_lum_per_filter(spitz_ch2_raw, spec_A_raw)
+# Find system flux F_sys in Kepler filters
+    # find flux from both stars A and B using above function
+SA = find_lum_per_filter(kep_transmission_raw, spec_A_raw)
+SB = find_lum_per_filter(kep_transmission_raw, spec_B_raw)
+S_sys = RA**2 * SA + RB**2 * SB
+
+    # Propagate error when scaling by radius
+sig_RA_2 = 2 * sig_RA * RA # uncertainty on first flux term
+sig_RB_2 = 2 * sig_RB * RB # uncertainty on second flux term
+sig_sys = SA * sig_RA*u.cm + SB * sig_RB*u.cm # uncertainty on system, total
+
+    # Report S_sys /pm sig_sys
+print(S_sys, sig_sys)
+sys.exit()
 
 def Planck(lam, T):
     # takes lam in angstroms

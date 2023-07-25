@@ -215,9 +215,9 @@ def lnp(pars, priors, ch1, ch2, kepler, SuperSample = False):
     #log_prob_prior += stats.norm.logpdf(pars[2], loc=priors[2][0], scale=priors[2][1]/scale) # RPRs1
     #log_prob_prior += stats.norm.logpdf(pars[3], loc=priors[3][0], scale=priors[3][1]/scale) # Rprs2
     #log_prob_prior += stats.norm.logpdf(pars[4], loc=priors[4][0], scale=priors[4][1]/scale) # RpRsk
-   # log_prob_prior += stats.norm.logpdf(pars[5], loc=priors[5][0], scale=priors[5][1]/scale) # log_ars
+    #log_prob_prior += stats.norm.logpdf(pars[5], loc=priors[5][0], scale=priors[5][1]/scale) # log_ars
    # log_prob_prior += stats.norm.logpdf(pars[6], loc=priors[6][0], scale=priors[6][1]/scale) # Cosi
-   # log_prob_prior += stats.norm.logpdf(pars[7], loc=priors[7][0], scale=priors[7][1]/scale) # esinw
+  #  log_prob_prior += stats.norm.logpdf(pars[7], loc=priors[7][0], scale=priors[7][1]/scale) # esinw
    # log_prob_prior += stats.norm.logpdf(pars[8], loc=priors[8][0], scale=priors[8][1]/scale) # ecosw
     #log_prob_prior += stats.norm.logpdf(pars[9], loc=priors[9][0], scale=priors[9][1]/scale) # slope1
     #log_prob_prior += stats.norm.logpdf(pars[10], loc=priors[10][0], scale=priors[10][1]/scale) # slope2
@@ -230,13 +230,13 @@ def lnp(pars, priors, ch1, ch2, kepler, SuperSample = False):
 # Makes walker array, runs mcmc
 def run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler, plot_corner = False, SuperSample=False, run=1):
     ndim = len(pars)
-    nwalkers = 2*ndim
+    nwalkers = 2*ndim*2
 
     pos = np.empty((nwalkers, ndim))
     for i, par in enumerate(pars):
-        pos[:, i] = np.random.normal(par, priors[i][1]/10, nwalkers) # used to be /10
+        pos[:, i] = np.random.normal(par, priors[i][1]/10, nwalkers) # used to be /10 now is not
 
-    with Pool(processes=cpu_count()) as pool:
+    with Pool() as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnp,
                                         args=(priors, ch1, ch2, kepler, SuperSample), pool=pool)
         pos, _, _ = sampler.run_mcmc(pos, nburn, progress=True)  # runs mcmc on burnin values
@@ -266,7 +266,7 @@ def run_mcmc(pars, priors, nburn, nprod, ch1, ch2, kepler, plot_corner = False, 
                   "esinw", "ecosw", "slope1", "slope2"]
         fig = corner.corner(flat_sample, labels=labels, show_titles=True)
         plt.tight_layout()
-        #plt.show()
+        plt.show()
         plt.savefig("cornerplot.pdf", dpi=300, bbox_inches="tight")
 
     return flat_sample
