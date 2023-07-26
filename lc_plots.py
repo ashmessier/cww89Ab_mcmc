@@ -10,7 +10,7 @@ rc("font",**{"family":"serif", "serif":["Times"]})
 rc("text", usetex=True)
 
 # PLOT OPTIONS ----------------------------------------------------------
-print_pars = True
+print_pars = False
 plot_corner = False
 plot_spitzer = False
 combo_spitzer = False
@@ -67,15 +67,8 @@ kepler["BJD_decimal"] = kepler["time"] - np.floor(kepler["time"][0])
 bin_data(ch1, just_params, ch=1, dict_append=True)
 bin_data(ch2, just_params, ch=2, dict_append=True)
 
-# sum = 0
-# for point in kepler["flux"]:
-#     if (point <= 0.992):
-#         sum+=1
-# print(np.std(kepler["flux"][:100]) * 1000000)
-
-
 # PHASEFOLDING
-PhaseFold(kepler, just_params, ch="kepler")
+PhaseFold(kepler, just_params, ch="kepler", SuperSample=True, residuals=True)
 PhaseFold(ch1, just_params, binned=True, ch=1)
 PhaseFold(ch2, just_params, binned=True, ch=2)
 ch1_nonbin_ph = PhaseFold(ch1, just_params, binned=False, new_dict=True, ch=1)
@@ -88,7 +81,7 @@ if print_pars:
     for i, label in enumerate(labels):
         print(labels[i], ":", just_params[i], "+/-", just_errs[i])
 
-# plots cornerplot from MCMC - 500 burnin, 2000 nprods
+# plots cornerplot from MCMC - 1000 burnin, 2000 nprods
 if plot_corner:
     labels = ["T0", "Log10(P)", "Rp/R*1", "Rp/R*2", "RpRsK", "Log10(a/R*)", "cosi", "esinw", "ecosw", "slope1", "slope2"]
     fig = corner.corner(flat_sample, labels=labels, show_titles=True)
@@ -168,7 +161,6 @@ if combo_spitzer:
     plt.ylim(1-0.017, 1+0.013)
     plt.title(r"4.5 $\mu$m Transit" )
 
-
 # Plot phasefolded Kepler LC
 if plot_kepler:
     plt.figure(figsize=(7, 5), dpi=750)
@@ -211,7 +203,8 @@ if plot_bliss:
 
 # Plots spitzer residuals
 if plot_residuals:
-    plt.figure(figsize=(7, 5), dpi=750)
+    plt.figure(figsize=(7*3, 5), dpi=750)
+    plt.subplot(131)
     plt.scatter(ch1["BJD_decimal"], ch1["residuals"], s=1, color="gray", alpha=0.3)
     plt.axhline(0, color=lc_col, zorder = 3)
     plt.errorbar(ch1["binned_BJD"], ch1["binned_residuals"], yerr=ch1["binned_err"], fmt="o",
@@ -219,15 +212,12 @@ if plot_residuals:
     bjd_value = round(np.floor(ch1["time"][0]))
     plt.xlabel(r"${BJD}_{TBD} -" + f"{bjd_value}$")
     plt.ylabel("Normalized Intensity - Model")
+    plt.xlim(-0.0016 ,0.0016)
     plt.title(r"3.6 $\mu$m Residuals" )
-    if savefigs:
-        fig_path = fig_dir / "spitzer_ch1_residuals.png"
-        plt.savefig(fig_path)
-    else:
-        plt.show()
 
     # plot spitzer CH 2
-    plt.figure(figsize=(7, 5), dpi=750)
+    #plt.figure(figsize=(7, 5), dpi=750)
+    plt.subplot(132)
     plt.scatter(ch2["BJD_decimal"], ch2["residuals"], s=1, color="gray", alpha=0.3)
     plt.axhline(0, color=lc_col, zorder = 3)
     plt.errorbar(ch2["binned_BJD"], ch2["binned_residuals"], yerr=ch2["binned_err"], fmt="o",
@@ -235,23 +225,29 @@ if plot_residuals:
     bjd_value = round(np.floor(ch2["time"][0]))
     plt.xlabel(r"${BJD}_{TBD} -" + f"{bjd_value}$")
     plt.ylabel("Normalized Intensity - Model")
+    plt.xlim(-0.0016 ,0.0016)
     plt.title(r"4.5 $\mu$m Residuals")
-    if savefigs:
-        fig_path = fig_dir / "spitzer_ch2_residuals.png"
-        plt.savefig(fig_path)
-    else:
-        plt.show()
-# NEED TO MAKE THIS INTO PHASEFOLDED RESIDUALS which is easy <3
+    # if savefigs:
+    #     fig_path = fig_dir / "spitzer_ch2_residuals.png"
+    #     plt.savefig(fig_path)
+    # else:
+    #     plt.show()
+
     # plot Kepler
-    plt.figure(figsize=(7, 5), dpi=750)
-    plt.scatter(kepler["phasefold_results"], kepler["residuals"], s=9, color=point_col)
+
+    #plt.figure(figsize=(7, 5), dpi=750)
+    plt.subplot(133)
+    plt.scatter(kepler["phasefold_results"], kepler["flux"] - lc(just_params, kepler, ch="kepler", SuperSample=True), s=9, color=point_col)
     plt.axhline(0, color=lc_col, zorder=3)
     bjd_value = round(np.floor(kepler["time"][0]))
     plt.xlabel(r"${BJD}_{TBD} -" + f"{bjd_value}$")
     plt.ylabel("Normalized Intensity - Model")
     plt.title(r"Kepler Residuals")
+
+    plt.tight_layout()
+
     if savefigs:
-        fig_path = fig_dir / "kepler_residuals.png"
+        fig_path = fig_dir / "all_residuals.png"
         plt.savefig(fig_path)
     else:
         plt.show()

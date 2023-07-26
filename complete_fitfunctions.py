@@ -9,19 +9,6 @@ import sys
 from multiprocessing import Pool, cpu_count
 import emcee, corner
 
-def BintoSpec(wave1, wave2, model):
-    nbins = wave1.shape[0]
-    deltas = np.ediff1d(wave1)
-    binnedmodel = np.zeros(nbins)
-    for i in range(nbins):
-        if i==0: wavestart = wave1[i] - deltas[i]/2.
-        else: wavestart = wave1[i] - deltas[i-1]/2.
-        if i==nbins: wavestop = wave1[i] + deltas[i-1]/2.
-        else: wavestop = wave1[i] + deltas[i-1]/2.
-        waverange = np.where((wave2>wavestart)&(wave2<wavestop))
-        binnedmodel[i] = np.average(model[waverange])
-    return binnedmodel
-
 def ramp(slope, data):
     return  1 + slope * (data["time"] - np.median(data["time"]))
 
@@ -50,16 +37,13 @@ def lc(pars, data, ch="", SuperSample = False):
         params.rp = pars[3]
 
     elif ch == "kepler":
-        params.u = [0.406388, 0.28089] # bestfit
-     #   params.u = [0.39456, 0.26712] # original
+      #  params.u = [0.406388, 0.28089] # bestfit
+        params.u = [0.461, 0.212] # original
+
         params.rp = pars[4]
 
     if SuperSample:
-        # SuperSampleTime = np.arange(time[0], time[-1], 0.004)
-        # m = batman.TransitModel(params, SuperSampleTime)
-        # SuperSampleFlux = m.light_curve(params)
-        # model = BintoSpec(time, SuperSampleTime, SuperSampleFlux)
-        m = batman.TransitModel(params, time, supersample_factor=5, exp_time = 0.02)
+        m = batman.TransitModel(params, time, supersample_factor=6, exp_time = 0.02) # used to be 5 now is 10
         model = m.light_curve(params)
     else:
         m = batman.TransitModel(params, time)  # initializes model
@@ -160,7 +144,7 @@ def PhaseFold(data, pars, residuals=False, binned=False, new_dict = False, Super
     lc_php_pars = lc(pars, php_times_pars, ch=ch, SuperSample=SuperSample)
 
     if residuals:
-        residual_flux = flux - lc_php_pars
+        residual_flux = flux - lc(pars, data["time"], ch=ch, SuperSample=SuperSample)
         data["residuals_php"] = residual_flux
     if new_dict:
         data_phasefold = {}
@@ -177,7 +161,6 @@ def PhaseFold(data, pars, residuals=False, binned=False, new_dict = False, Super
         data["lc_times"] = php_times_pars
         data["phase_time"] = time_pars
 
-# deleted make model, the ramp
 def make_model(pars, data, ch=""):
     if ch == 1:
         ramp = 1 + pars[9] * (data["time"] - np.median(data["time"]))  # 1+slope * median time
@@ -196,6 +179,8 @@ def make_model(pars, data, ch=""):
 # fix LNP function
 def lnp(pars, priors, ch1, ch2, kepler, SuperSample = False):
     scale = 1
+
+    if pars[6] < 0 : return -np.inf
 
     models = {}
     models["ch1"] = make_model(pars, ch1, ch=1)

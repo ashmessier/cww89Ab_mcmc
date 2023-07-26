@@ -122,7 +122,7 @@ kepler_ph = PhaseFold(kepler, mcmc_pars1, new_dict=True, SuperSample=ss, ch="kep
 ch1["mcmc_detrended_flux"] = ch1["flux"] / ch1_ramp / ch1_blissflux
 ch2["mcmc_detrended_flux"] = ch2["flux"] / ch2_ramp / ch2_blissflux
 
-# plots final mcmc lc over detrended data, phasefolded data?
+# # plots final mcmc lc over detrended data, phasefolded data?
 plt.figure(figsize=(15, 5))
 
 plt.subplot(131)
@@ -145,7 +145,7 @@ plt.plot(kepler_ph["phase_time"], kepler_ph["lc_php"], color="red")
 plt.show()
 plt.savefig("final_mcmc_plots.pdf", dpi=300, bbox_inches="tight")
 
-# prints transit depths + errors
+#prints transit depths + errors
 labels = ["T0", "log_period", "RpRs1", "RpRs2", "RpRsK", "log_ars", "cosi",
           "esinw", "ecosw", "slope1", "slope2", "depth1", "depth2", "depthk"]
 

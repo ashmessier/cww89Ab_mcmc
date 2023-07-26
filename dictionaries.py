@@ -21,6 +21,32 @@ period_RV = [5.29236, 0.00038]
 log10per_RV = np.log10(period_RV[0])
 sig_log10per_RV = 1 / (np.log(10)) * period_RV[1] / period_RV[0]
 
+# from TB paper
+sqrtecosw = [0.4213, 0.0011]
+sqrtesinw = [-0.1061, 0.0006]
+
+e = (sqrtesinw[0])**2 + (sqrtecosw[0])**2
+sig_e = np.sqrt((2 * sqrtesinw[1] * sqrtesinw[0])**2 + (2 * sqrtecosw[1] * sqrtecosw[0])**2)
+
+w = np.arctan2(sqrtesinw[0], sqrtecosw[0])
+# w error calculation
+partial_w_partial_x = sqrtecosw[0] / (sqrtesinw[0] ** 2 + sqrtecosw[0] ** 2)
+partial_w_partial_y = -sqrtesinw[0] / (sqrtesinw[0] ** 2 + sqrtecosw[0] ** 2)
+sig_w = np.sqrt((partial_w_partial_x * sqrtesinw[1]) ** 2 + (partial_w_partial_y * sqrtecosw[1]) ** 2)
+
+esinw_TB = e * np.sin(w)
+ecosw_TB = e * np.cos(w)
+
+# esinw_TB error calculation
+partial_m_partial_x = np.sin(w)
+partial_m_partial_y = e * np.cos(w)
+sig_esinw_TB = np.sqrt((partial_m_partial_x * sig_e) ** 2 + (partial_m_partial_y * sig_w) ** 2)
+
+# ecosw_TB error calculation
+partial_m_partial_x = np.cos(w)
+partial_m_partial_y = -e * np.sin(w)
+sig_ecosw_TB = np.sqrt((partial_m_partial_x * sig_e) ** 2 + (partial_m_partial_y * sig_w) ** 2)
+
 # Nowak kepler fit
 if Nowak:
     # # priors from Nowak
@@ -109,8 +135,8 @@ if combo:# MCMC WORKS WITH COMBO PRIORS as PARS AND USING PRIORS_SPITZ AS T0 AND
     combo_priors[4] = [0.0938397497949011, priors_TB[4][1]] # used to both be priors_TB
     combo_priors[5] = priors_mod[5]  # Ars
     combo_priors[6] = priors_spitz[6]  # Cosi
-    combo_priors[7] = priors_mod[7]  # esinw
-    combo_priors[8] = priors_mod[8]  # ecosw
+    combo_priors[7] = [esinw_TB, sig_esinw_TB]
+    combo_priors[8] = [ecosw_TB, sig_ecosw_TB]
     combo_priors[9] = priors_spitz[9]  # m1
     combo_priors[10] = priors_spitz[10]  # m2
 
