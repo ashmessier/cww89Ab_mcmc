@@ -3,6 +3,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from scipy.integrate import trapezoid
 import math
+import sys
 
 from astropy.modeling.models import BlackBody
 from astropy import units as u
@@ -21,50 +22,49 @@ johnson_V_raw = np.loadtxt("GCPD_Johnson.V.dat")
 johnson_B_raw = np.loadtxt("GCPD_Johnson.B.dat")
 
 # loads in depths and errors from MCMC fitting
-mcmc_output = np.load("final_params_working.npz")
+mcmc_output = np.load("../final_params_working.npz")
 pars = mcmc_output["pars"]
 errs = mcmc_output["errors"]
 # Printing parameters/errs in LaTeX format for writeup
 #
-# per = 10**pars[1]
-# ars = 10**pars[5]
-# inc = np.arccos(np.fabs(pars[6])) * (180 / np.pi)
-# e = np.sqrt(pars[8] ** 2 + pars[7] ** 2)
-# w = np.arctan2(pars[7], pars[8]) * (180 / np.pi)
-#
-# sig_per = errs[1]/(np.log(10))
-# sig_ars = errs[5]/(np.log(10))
-# sig_inc = (pars[6])/(1-(pars[6]**2))
-# sig_e = np.sqrt((pars[7]/(e) * errs[7])**2 + (pars[8]/(e) * errs[8])**2)
-# import math
-# def calculate_error_on_x(y, z, delta_y, delta_z):
-#     # Calculate partial derivatives
-#     partial_x_partial_y = (1 / (1 + (y / z) ** 2)) * (1 / z)
-#     partial_x_partial_z = (1 / (1 + (y / z) ** 2)) * (-y / z ** 2)
-#     # Calculate error on x using error propagation formula
-#     delta_x = math.sqrt((partial_x_partial_y * delta_y) ** 2 + (partial_x_partial_z * delta_z) ** 2)
-#     return delta_x
-#
-# # Example usage
-# # y = pars[7]
-# # z = pars[8]
-# # delta_y = errs[7]
-# # delta_z = errs[8]
-# # sig_w = calculate_error_on_x(y, z, delta_y, delta_z)
-# #
-# # pars_mod = [per, ars, inc, e, w]
-# # errs_mod = [sig_per, sig_ars, sig_inc, sig_e, sig_w]
-# # pars_mod = [2457346.329, 5.292569,0.09321,0.09321, 12.62, 88.53, 0.1929, 345.9, 0, 0]
-# # errs_mod = [0.00011, 0.000026, 0.00046, 0.00046, 0.15, 0.7, 0.0019, 1, 0.0001, 0.0001]
-# pars_mod = [0.7236665287, 1.101059355, 0.02565352539, -0.04699333577, 0.1870883117]
-# errs_mod = [2.13E-06, 2.13E-06, 1.80E-02, 5.76E-05, 3.52E-05]
-#
-#
-# for i, par in enumerate(pars_mod):
-#     err = errs_mod[i]
-#     print(f"${round(par, 4)} \pm {round(err, 8)}$")
+per = 10**pars[1]
+ars = 10**pars[5]
+inc = np.arccos(np.fabs(pars[6])) * (180 / np.pi)
+e = np.sqrt(pars[8] ** 2 + pars[7] ** 2)
+w = np.arctan2(pars[7], pars[8]) * (180 / np.pi)
 
-# makes variables with parameters, errors from mcmc_output for use in calculation
+sig_per = errs[1]/(np.log(10))
+sig_ars = errs[5]/(np.log(10))
+sig_inc = (pars[6])/(1-(pars[6]**2))
+sig_e = np.sqrt((pars[7]/(e) * errs[7])**2 + (pars[8]/(e) * errs[8])**2)
+import math
+def calculate_error_on_x(y, z, delta_y, delta_z):
+    # Calculate partial derivatives
+    partial_x_partial_y = (1 / (1 + (y / z) ** 2)) * (1 / z)
+    partial_x_partial_z = (1 / (1 + (y / z) ** 2)) * (-y / z ** 2)
+    # Calculate error on x using error propagation formula
+    delta_x = math.sqrt((partial_x_partial_y * delta_y) ** 2 + (partial_x_partial_z * delta_z) ** 2)
+    return delta_x
+
+# Example usage
+y = pars[7]
+z = pars[8]
+delta_y = errs[7]
+delta_z = errs[8]
+sig_w = calculate_error_on_x(y, z, delta_y, delta_z)
+#
+pars_mod = [per, ars, inc, e, w]
+errs_mod = [sig_per, sig_ars, sig_inc, sig_e, sig_w]
+# pars_mod = [2457346.329, 5.292569,0.09321,0.09321, 12.62, 88.53, 0.1929, 345.9, 0, 0]
+# errs_mod = [0.00011, 0.000026, 0.00046, 0.00046, 0.15, 0.7, 0.0019, 1, 0.0001, 0.0001]
+
+for i, par in enumerate(pars_mod):
+    err = errs_mod[i]
+    print(f"${round(par, 5)} \pm {round(err, 8)}$")
+
+sys.exit()
+
+#makes variables with parameters, errors from mcmc_output for use in calculation
 
 RpRs_kepler = [pars[4], errs[4]]
 depth_ch1 = [pars[11], errs[11]]

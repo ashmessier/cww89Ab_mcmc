@@ -10,18 +10,18 @@ rc("font",**{"family":"serif", "serif":["Times"]})
 rc("text", usetex=True)
 
 # PLOT OPTIONS ----------------------------------------------------------
-print_pars = False
+print_pars = True
 plot_corner = False
 plot_spitzer = False
 combo_spitzer = False
 plot_kepler= False
-plot_residuals = True
+plot_residuals = False
 plot_bliss = False
-plot_depths = False
-plot_all_lc2 = False
+plot_depths = True
+plot_all_lc2 = True
 plot_sequence = False
 
-savefigs = False
+savefigs = True
 
 fig_dir = Path("figures")
 fig_dir.mkdir(parents=True, exist_ok=True)
@@ -62,6 +62,16 @@ for key in keys[:5]:
 ch1["BJD_decimal"] = ch1["time"] - np.floor(ch1["time"][0])
 ch2["BJD_decimal"] = ch2["time"] - np.floor(ch2["time"][0])
 kepler["BJD_decimal"] = kepler["time"] - np.floor(kepler["time"][0])
+
+
+print(np.std(kepler["flux"][:100]) * 1e6)
+sum = 0
+for point in kepler["flux"]:
+    if point < 0.992:
+        sum += 1
+
+print(186/np.sqrt(sum))
+
 
 # BINNING DATA ----------------------------------------------------------
 bin_data(ch1, just_params, ch=1, dict_append=True)
