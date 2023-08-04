@@ -10,14 +10,14 @@ rc("font",**{"family":"serif", "serif":["Times"]})
 rc("text", usetex=True)
 
 # PLOT OPTIONS ----------------------------------------------------------
-print_pars = True
+print_pars = False
 plot_corner = False
 plot_spitzer = False
 combo_spitzer = False
 plot_kepler= False
 plot_residuals = False
 plot_bliss = False
-plot_depths = True
+plot_depths = False
 plot_all_lc2 = True
 plot_sequence = False
 
@@ -29,7 +29,7 @@ fig_dir.mkdir(parents=True, exist_ok=True)
 lc_col = "crimson"
 point_col = "mediumaquamarine"
 bliss_cmap = "RdYlBu"
-lam_colors = ["darkorange", "forestgreen", "midnightblue"]
+lam_colors = ["deepskyblue", "maroon", "darkorange"]
 
 # LOADS DATA ---------------------------------------------
 flat_sample = np.load("flat_sample_1.npy")
@@ -330,13 +330,13 @@ if plot_sequence:
     axes[2][0].set_title("Raw Kepler data",size=18)
     axes[2][1].scatter(kepler["time"], kepler["flux"], s=1, color=point_col)
     axes[2][1].plot(kepler["time"], kepler["mcmc_lc"], color=lc_col)
-    axes[2][1].set_title("MCMC 1 fit Kepler Data \n for period, T0",size=18)
+    axes[2][1].set_title("Preliminary fit", size=18)
     axes[2][2].scatter(kepler["phasefold_results"], kepler["flux"], s=1, color=point_col)
-    axes[2][2].set_title("Phasefolded Kepler Data \n for MCMC 2 fitting",size=18)
+    axes[2][2].set_title("Phasefolded Kepler data",size=18)
     axes[2][2].set_xlim(-0.1, 0.1)
     axes[2][3].scatter(kepler["phasefold_results"], kepler["flux"], s=1, color=point_col)
     axes[2][3].plot(kepler["phase_time"], kepler["lc_php"], color=lc_col)
-    axes[2][3].set_title("MCMC 2 fit \n on phasefold",size=18)
+    axes[2][3].set_title("MCMC fit on phasefold",size=18)
     axes[2][3].set_xlim(-0.1, 0.1)
     axes[2][4].scatter(kepler["time"], kepler["residuals"], s=1, color=point_col)
     axes[2][4].set_title("Residuals \n Kepler Data - Kepler lc",size=18)
@@ -351,7 +351,7 @@ if plot_sequence:
         plt.show()
 
 if plot_all_lc2:
-    plt.figure(figsize=(7, 5), dpi=750)
+    plt.figure(figsize=(5, 5), dpi=750)
     plt.plot(ch1_nonbin_ph["phase_time"], ch1_nonbin_ph["lc_php"], color=lam_colors[0])
     plt.scatter(ch1["phasefold_results"], ch1["binned_flux"], s=9, color=lam_colors[0], alpha=0.5, label="Spitzer Ch 1")
 
